@@ -2,12 +2,12 @@
 This project analyzes a dataset of bank consumer complaints to evaluate the performance of different language models on a classification task. The goal is to explore how fine-tuning smaller models compares to using large, general-purpose models.
 
 ## Models Compared:
-BERT (bert-base-uncased): A smaller, well-optimized model with ~300 million parameters, fine-tuned for this dataset.
+BERT (bert-base-uncased): A smaller, well-optimized model with ~110 million parameters, fine-tuned for this dataset.
 Fine-tuned LLaMA-1B (meta-llama/Llama-3.2-1B-Instruct): A smaller variant of LLaMA with 1 billion parameters, fine-tuned for better task-specific performance.
 Base LLaMA-8B (meta-llama/Llama-3.1-8B): A large-scale model with 8 billion parameters, evaluated without fine-tuning.
 Key Findings:
 Fine-tuned LLaMA-1B and BERT models significantly outperform the base LLaMA-8B model.
-Despite its smaller size (~300 million parameters), BERT achieves results comparable to the fine-tuned LLaMA-1B model.
+Despite its smaller size (~110 million parameters), BERT achieves results comparable to the fine-tuned LLaMA-1B model.
 The base LLaMA-8B model performs poorly, emphasizing the importance of fine-tuning over sheer model size.
 Results:
 Model	Parameters	Accuracy	F1 Score	Precision	Recall
