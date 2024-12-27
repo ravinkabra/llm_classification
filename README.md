@@ -29,7 +29,7 @@ Hugging Face Datasets for dataset preprocessing and tokenization.
 
 ## Dataset: https://www.kaggle.com/datasets/shashwatwork/consume-complaints-dataset-fo-nlp/data
 
-The project uses a bank consumer complaints dataset, with preprocessing to extract relevant features (narrative) and labels (product). The data is split into training, validation, and test sets, and performance is evaluated using standard classification metrics like accuracy, F1 score, precision, and recall.
+The project uses a bank consumer complaints dataset, with preprocessing to extract relevant features (narrative) and labels (product). The data is stratify-split into training, validation, and test sets, and performance is evaluated using standard classification metrics like accuracy, F1 score, precision, and recall.
 
 
 ## Conclusion:
