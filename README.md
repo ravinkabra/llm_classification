@@ -1,36 +1,85 @@
-# Bank Consumer Complaints Analysis: Comparing LLaMA and BERT Models
-This project analyzes a dataset of bank consumer complaints to evaluate the performance of different language models on a classification task. The goal is to explore how fine-tuning smaller models compares to using large, general-purpose models.
+# 🧠 Bank Consumer Complaints AI: Fine-Tuning, Classification & Agentic Triage
 
-## Models Compared:
-BERT (bert-base-uncased): A smaller, well-optimized model with ~110 million parameters, fine-tuned for this dataset.
-Fine-tuned LLaMA-1B (meta-llama/Llama-3.2-1B-Instruct): A smaller variant of LLaMA with 1 billion parameters, fine-tuned for better task-specific performance.
-Base LLaMA-8B (meta-llama/Llama-3.1-8B): A large-scale model with 8 billion parameters, evaluated without fine-tuning.
-Key Findings:
-Fine-tuned LLaMA-1B and BERT models significantly outperform the base LLaMA-8B model.
-Despite its smaller size (~110 million parameters), BERT achieves results comparable to the fine-tuned LLaMA-1B model.
-The base LLaMA-8B model performs poorly, emphasizing the importance of fine-tuning over sheer model size.
-Results:
-Model	Parameters	Accuracy	F1 Score	Precision	Recall
-BERT (bert-base-uncased)	~110 million	73.19%	68.92%	70.00%	69.00%
-Fine-tuned LLaMA-1B	~1 billion	73.68%	72.58%	73.20%	74.30%
-Base LLaMA-8B	8 billion	14.76%	13.31%	32.10%	14.76%
-Note: Fine-tuned smaller models (BERT and LLaMA-1B) achieve significantly better performance than the base LLaMA-8B model, which fails to generalize effectively without fine-tuning.
+This project presents a comprehensive pipeline for understanding and responding to consumer banking complaints, combining:
 
-## Objectives:
-Explore the efficiency of fine-tuning smaller models for domain-specific tasks.
-Highlight the diminishing returns of increasing model size without optimization.
-Demonstrate the cost-effectiveness and practicality of smaller, task-specific models compared to large, expensive models.
-Tools and Frameworks:
-Transformers library for working with LLaMA and BERT models.
-PyTorch for model training and evaluation.
-Scikit-learn for metrics and confusion matrix visualization.
-Hugging Face Datasets for dataset preprocessing and tokenization.
+1. **Transformer Model Comparison**: Fine-tuning and evaluating BERT and LLaMA variants on classification tasks
+2. **Agentic AI Triage System**: Retrieval-Augmented Generation using LangChain, FAISS, and Gemini Flash to auto-triage incoming complaints
 
+---
 
-## Dataset: https://www.kaggle.com/datasets/shashwatwork/consume-complaints-dataset-fo-nlp/data
+## 🎯 Project Objectives
 
-The project uses a bank consumer complaints dataset, with preprocessing to extract relevant features (narrative) and labels (product). The data is stratify-split into training, validation, and test sets, and performance is evaluated using standard classification metrics like accuracy, F1 score, precision, and recall.
+- Evaluate how fine-tuning smaller models compares to scaling larger, general-purpose LLMs
+- Build an agentic system that retrieves similar cases, reasons over complaint context, and generates structured triage outputs
+- Demonstrate real-world value of task-specific models and modular LLM pipelines in enterprise settings
 
+---
 
-## Conclusion:
-This project demonstrates that fine-tuning smaller models like BERT and LLaMA-1B can outperform or match much larger models (e.g., LLaMA-8B) on domain-specific tasks. This finding underscores the value of efficient, targeted fine-tuning in real-world applications, both for performance and computational cost.
+## 🧪 Part 1: Model Comparison – Fine-Tuned BERT vs LLaMA
+
+We compared three models on a multi-label classification task using 10K labeled complaints:
+
+| Model                  | Parameters | Accuracy | F1 Score | Precision | Recall |
+|------------------------|------------|----------|----------|-----------|--------|
+| BERT (base, fine-tuned)        | ~110M     | 73.19%   | 68.92%   | 70.00%    | 69.00% |
+| LLaMA-1B (fine-tuned)          | ~1B       | 73.68%   | 72.58%   | 73.20%    | 74.30% |
+| LLaMA-8B (zero-shot, base)     | 8B        | 14.76%   | 13.31%   | 32.10%    | 14.76% |
+
+### 🧠 Key Insights
+
+- Fine-tuned **LLaMA-1B** significantly outperforms the **8B base LLaMA**, despite being 8× smaller.
+- Fine-tuned **BERT-base** performs nearly on par with LLaMA-1B — showing the strength of smaller, well-optimized models.
+- Zero-shot large LLMs **fail without task adaptation**, underscoring the value of fine-tuning.
+
+### 🛠️ Tools Used
+
+- `transformers` (Hugging Face) for model fine-tuning
+- `PEFT` and `bitsandbytes` for LoRA + quantization
+- `scikit-learn` for metrics and evaluation
+- `PyTorch` for training pipelines
+
+---
+
+## ✉️ Complaint Classification + Email Agent
+
+This subsystem pairs the classifier with a lightweight LLM to **draft customer-facing replies**:
+
+- Combined LoRA-tuned BERT with TinyLLaMA‑1.1B to label complaints and generate email responses
+- Achieved 84% F1 in issue classification across 10K samples
+- Added sentiment analysis using DistilBERT to personalize tone
+- Used prompt engineering to ensure brand-aligned, context-aware email templates
+
+This model forms the **input layer** for downstream triage and response automation.
+
+---
+
+## 🤖 Part 2: Agentic Complaint Triage (LangChain + FAISS + Gemini Flash)
+
+This system performs **real-time triage** of customer complaints, designed for internal bank ops.
+
+### 🔁 Workflow:
+
+1. Embeds 5,000+ historical complaints using MiniLM (GPU-accelerated)
+2. Indexes embeddings with FAISS for semantic retrieval
+3. Wraps each complaint in a LangChain `Document` with metadata
+4. Uses Gemini Flash with a structured prompt to output:
+   - Issue category
+   - Urgency score (0–10)
+   - Responsible team (e.g., Deposits, Fraud)
+   - Root cause hypothesis
+   - Recommended resolution
+   - Escalation flag (true/false)
+   - Tags
+
+### 🧾 Example Output
+
+```json
+{
+  "issue_category": "Overdraft Fees",
+  "urgency_score": 7,
+  "team": "Retail Deposits Operations",
+  "root_cause": "Paycheck posted after overdraft cutoff time",
+  "suggested_resolution": "Refund fees or clarify policy",
+  "escalate": false,
+  "tags": ["overdraft", "fees", "cutoff", "refund"]
+}
